@@ -1,6 +1,9 @@
 from math import isqrt
 
 def validate_board(board):
+    """
+    Checking board dimensions
+    """
     N = len(board)
     n = isqrt(N)
 
@@ -19,6 +22,9 @@ def validate_board(board):
     return n
 
 def candidates(board, r, c):
+    """
+    Keeps track of the values still available for each cell
+    """
     N = len(board)
     n = isqrt(N)
 
@@ -39,7 +45,10 @@ def candidates(board, r, c):
     return set(range(1, N + 1)) - used
 
 def consistent(board):
-    """Check for duplicate nonzero values in houses."""
+    """
+    Check for duplicate values in houses.
+    Excluding zeros
+    """
     N = len(board)
     n = isqrt(N)
 
@@ -61,7 +70,7 @@ def consistent(board):
             ])
 
     for house in houses:
-        values = [v for v in house if v != 0]
+        values = [v for v in house if v != 0]   # This took forever
         if len(values) != len(set(values)):
             return False
 
