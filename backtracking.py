@@ -1,16 +1,32 @@
+
 from board import validate_board, candidates, consistent
 
-def solve_backtracking(board, feasibility_check=None):
+def solve_backtracking(board, feasibility_check=None, stats=None):
+    """
+    Base backtracking algorithm to work from
+    """
     validate_board(board)
 
+    # Used for tracking metrics
+    if stats is None:
+        stats = {}
+
+    # tracks nodes expanded, nodes pruned and assignments tried
+    stats["nodes_expanded"] = 0
+    stats["nodes_pruned"] = 0
+    stats["assignments_tried"] = 0
+
+    # Checking for duplicate values
     if not consistent(board):
         return None
 
-    # Make a mutable copy of the input
+    # Creating the grid used for backtracking
     grid = [list(row) for row in board]
 
     def search():
-        # Find first empty cell
+        stats["nodes_expanded"] += 1
+
+        # Keeps track of empty cells
         empty = None
 
         for r in range(len(grid)):
@@ -21,13 +37,14 @@ def solve_backtracking(board, feasibility_check=None):
             if empty is not None:
                 break
 
-        # No empty cells: puzzle solved
         if empty is None:
             return True
 
         r, c = empty
 
+        # Tries each candidate value (available values) in empty grid positions
         for value in sorted(candidates(grid, r, c)):
+            stats["assignments_tried"] += 1
             grid[r][c] = value
 
             allowed = True
@@ -36,14 +53,17 @@ def solve_backtracking(board, feasibility_check=None):
                 state = tuple(tuple(row) for row in grid)
                 allowed = feasibility_check(state)
 
+            if not allowed:
+                stats["nodes_pruned"] += 1
+
             if allowed and search():
                 return True
 
-            # Undo the assignment
             grid[r][c] = 0
 
         return False
 
+    # If successful, return the grid
     if search():
         return tuple(tuple(row) for row in grid)
 
